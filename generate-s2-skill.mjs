@@ -2,57 +2,48 @@
 
 /**
  * generate-s2-skill.mjs
- * 
- * Generates a token-optimized React Spectrum S2 skill package for LLM consumption.
- * 
+ *
+ * Updates reference documentation for React Spectrum S2 skill from upstream.
+ *
  * DESCRIPTION:
- *   This script automates the creation of a comprehensive documentation skill for
- *   React Spectrum S2 components. It filters out unnecessary content (release notes,
- *   component-specific testing files) and generates a clean, token-efficient SKILL.md
- *   file optimized for AI agents.
- * 
+ *   This script syncs the references/ folder with the latest React Spectrum S2
+ *   documentation. It runs Adobe's markdown generator and copies the filtered
+ *   output. SKILL.md is hand-maintained separately and NOT touched by this script.
+ *
  * USAGE:
- *   Default (uses current directory):
- *     node generate-s2-skill.mjs
+ *   From skill directory:
+ *     node scripts/generate-s2-skill.mjs /path/to/react-spectrum
  *
- *   Custom React Spectrum path:
- *     node generate-s2-skill.mjs /path/to/react-spectrum
+ *   Custom output path:
+ *     node scripts/generate-s2-skill.mjs /path/to/react-spectrum /output/skill/path
  *
- *   Custom React Spectrum and output paths:
- *     node generate-s2-skill.mjs /path/to/react-spectrum /output/path
- * 
  * ARGUMENTS:
- *   [repoPath]   Path to React Spectrum repository (default: current directory)
- *   [outputPath] Path where s2-skill folder will be created (default: current directory)
- * 
+ *   <repoPath>   Path to React Spectrum repository (REQUIRED)
+ *   [outputPath] Path to skill directory (default: parent of scripts/)
+ *
  * OUTPUT:
- *   Creates s2-skill/ folder with:
- *   - SKILL.md: Token-optimized index of all components and guides
- *   - references/: 77 markdown files (66 components + 11 guides)
- * 
+ *   Updates references/ folder with ~77 markdown files (66 components + 11 guides)
+ *   Does NOT modify SKILL.md
+ *
  * FEATURES:
  *   - Filters out release notes and version history
  *   - Consolidates component-specific testing into single guide
- *   - Token-efficient format (no redundant markdown links)
  *   - Only copies referenced documentation files
- *   - Interactive overwrite confirmation
- * 
+ *   - Preserves hand-crafted SKILL.md
+ *
  * REQUIREMENTS:
  *   - Node.js 18.0 or higher
  *   - React Spectrum repository with yarn installed
  *   - Write permissions for output directory
- * 
+ *
  * EXAMPLES:
- *   # Generate in current directory
- *   node generate-s2-skill.mjs
+ *   # Update references from local react-spectrum clone
+ *   node scripts/generate-s2-skill.mjs ~/repos/react-spectrum
  *
- *   # Specify React Spectrum location
- *   node generate-s2-skill.mjs ~/repos/react-spectrum
+ *   # Update references to a different skill location
+ *   node scripts/generate-s2-skill.mjs ~/repos/react-spectrum ~/.claude/skills/react-spectrum-2
  *
- *   # Custom output location
- *   node generate-s2-skill.mjs ~/repos/react-spectrum /tmp/output
- * 
- * VERSION: 1.0.0
+ * VERSION: 2.0.0
  * UPDATED: 2026-01-22
  */
 
@@ -63,11 +54,18 @@ import readline from 'readline';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const projectRoot = path.resolve(__dirname, '..');
+const skillRoot = path.resolve(__dirname, '..');
 
 // Parse command-line arguments
-const repoPath = process.argv[2] || projectRoot;
-const outputPath = process.argv[3] || projectRoot;
+const repoPath = process.argv[2];
+const outputPath = process.argv[3] || skillRoot;
+
+if (!repoPath) {
+  console.error('❌ Error: React Spectrum repository path is required');
+  console.error('\nUsage: node scripts/generate-s2-skill.mjs <react-spectrum-path> [output-path]');
+  console.error('\nExample: node scripts/generate-s2-skill.mjs ~/repos/react-spectrum');
+  process.exit(1);
+}
 
 // Helper function to check if file exists
 async function fileExists(filePath) {
@@ -159,49 +157,6 @@ function parseLlmsTxt(content) {
   return entries;
 }
 
-// Helper function to generate SKILL.md
-function generateSkillMd(entries) {
-  // Separate components from guides
-  const components = entries.filter(e => /^[A-Z]/.test(e.name));
-  const guides = entries.filter(e => !/^[A-Z]/.test(e.name));
-  
-  let md = `# React Spectrum S2 Agent Skill
-
-This skill provides comprehensive documentation for React Spectrum S2 components. It includes complete API references, usage examples, prop documentation, and styling guides.
-
-## How to Use
-
-All component and guide documentation is included in the \`references/\` folder. Each file contains:
-- Complete component description
-- API/props reference
-- Code examples
-- Type signatures
-- Styling information
-
-Generated from the React Spectrum S2 source documentation.
-
----
-
-## Components (${components.length})
-
-`;
-
-  for (const entry of components) {
-    md += `${entry.filename}\n`;
-    md += `${entry.description}\n\n`;
-  }
-
-  if (guides.length > 0) {
-    md += `---\n\n## Guides & References (${guides.length})\n\n`;
-    for (const entry of guides) {
-      md += `${entry.filename}\n`;
-      md += `${entry.description}\n\n`;
-    }
-  }
-
-  return md;
-}
-
 async function main() {
   try {
     // Validate repo path
@@ -231,9 +186,8 @@ async function main() {
     }
 
     // Prepare paths
-    const skillPath = path.join(outputPath, 's2-skill');
     const sourceDir = path.join(repoPath, 'packages/dev/s2-docs/dist/s2');
-    const referencesDir = path.join(skillPath, 'references');
+    const referencesDir = path.join(outputPath, 'references');
 
     // Check if output directory exists
     if (await fileExists(sourceDir)) {
@@ -244,22 +198,22 @@ async function main() {
       process.exit(1);
     }
 
-    // Check if s2-skill folder exists
-    if (await fileExists(skillPath)) {
-      console.log(`\n⚠️  s2-skill folder already exists at: ${skillPath}`);
-      const answer = await promptUser('Overwrite s2-skill folder? (yes/no): ');
-      
+    // Check if references folder exists
+    if (await fileExists(referencesDir)) {
+      console.log(`\n⚠️  references/ folder exists at: ${referencesDir}`);
+      const answer = await promptUser('Overwrite references/ folder? (yes/no): ');
+
       if (!['yes', 'y', 'YES', 'Yes'].includes(answer.trim())) {
-        console.log('Cancelled. Existing folder preserved.');
+        console.log('Cancelled. Existing references preserved.');
         process.exit(0);
       }
-      
-      console.log('Removing existing folder...');
-      await fs.rm(skillPath, { recursive: true, force: true });
+
+      console.log('Removing existing references...');
+      await fs.rm(referencesDir, { recursive: true, force: true });
     }
 
-    // Create folder structure
-    console.log(`\n📁 Creating s2-skill structure at: ${skillPath}`);
+    // Create references folder
+    console.log(`\n📁 Creating references/ at: ${referencesDir}`);
     await fs.mkdir(referencesDir, { recursive: true });
 
     // Read llms.txt from source (don't copy it)
@@ -304,31 +258,14 @@ async function main() {
     }
     console.log(`\n✓ Copied ${copiedCount} files`);
 
-    // Generate SKILL.md from parsed entries
-    console.log(`\n🎯 Generating SKILL.md from llms.txt...`);
-
-    const skillMd = generateSkillMd(entries);
-    const skillMdPath = path.join(skillPath, 'SKILL.md');
-    
-    try {
-      await fs.writeFile(skillMdPath, skillMd, 'utf8');
-      console.log(`✓ Generated SKILL.md with ${entries.length} entries`);
-    } catch (error) {
-      console.error(`❌ Error writing SKILL.md: ${error.message}`);
-      process.exit(1);
-    }
-
     // Success summary
-    console.log(`\n✅ Success! s2-skill folder created.`);
+    console.log(`\n✅ Success! references/ updated.`);
     console.log(`\n📊 Summary:`);
-    console.log(`   Location: ${skillPath}`);
+    console.log(`   Location: ${referencesDir}`);
     console.log(`   Files: ${copiedCount} references`);
     console.log(`   Components: ${entries.filter(e => /^[A-Z]/.test(e.name)).length}`);
     console.log(`   Guides: ${entries.filter(e => !/^[A-Z]/.test(e.name)).length}`);
-    console.log(`\n📖 Next steps:`);
-    console.log(`   1. Review: cat ${skillMdPath}`);
-    console.log(`   2. Check references: ls ${referencesDir} | head -10`);
-    console.log(`   3. Integrate: Copy s2-skill folder to your Amp skills directory`);
+    console.log(`\n📖 Note: SKILL.md is hand-maintained and was not modified.`);
 
     process.exit(0);
   } catch (error) {

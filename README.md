@@ -1,20 +1,30 @@
 # React Spectrum S2 Skill
 
-A complete AI skill package for React Spectrum 2 with comprehensive component documentation and an automated skill generator.
+A complete AI skill package for React Spectrum 2 with comprehensive component documentation and an automated reference updater.
 
 ## What's Included
 
+- **Hand-crafted SKILL.md** with actionable rules and component lookup
 - **66 React Spectrum S2 Components** with full API documentation
 - **11 Guide Files** covering styling, forms, testing, and more
-- **Skill Generator Script** to regenerate documentation from React Spectrum source
-- **77 Markdown References** ready for AI agent consumption
+- **Reference Updater Script** to sync documentation from upstream React Spectrum
 
 ## Quick Start
+
+### Use with Claude Code
+
+Copy `s2-skill/` to your Claude Code skills directory:
+
+```bash
+cp -r s2-skill ~/.claude/skills/react-spectrum-2
+```
+
+The skill will auto-trigger when building React components with Spectrum S2.
 
 ### Browse Documentation
 
 ```bash
-# View the main skill index
+# View the skill instructions
 cat s2-skill/SKILL.md
 
 # View specific component documentation
@@ -24,48 +34,44 @@ cat s2-skill/references/TableView.md
 
 # View guide files
 cat s2-skill/references/styling.md
-cat s2-skill/references/getting-started.md
 cat s2-skill/references/forms.md
 ```
 
-### Use with AI Agents
+## Skill Structure
 
-Load the skill into your AI context:
-
-```bash
-# Load entire skill
-cat s2-skill/SKILL.md
-
-# Load specific references as needed
-cat s2-skill/references/Button.md
+```
+s2-skill/
+├── SKILL.md                    # Hand-maintained skill instructions
+└── references/                 # Auto-generated from upstream
+    ├── Button.md               # Component documentation (66 files)
+    ├── ComboBox.md
+    ├── ...
+    ├── styling.md              # Guide documentation (11 files)
+    └── ...
 ```
 
-## Generator Script
+**SKILL.md** - Hand-maintained. Contains:
+- YAML frontmatter for skill discovery
+- Core rules for S2 compliance
+- Style macro usage patterns
+- Reference table for progressive disclosure
+- Component lookup by category
 
-The `generate-s2-skill.mjs` script automates the process of regenerating React Spectrum S2 component documentation.
+**references/** - Auto-generated from Adobe's React Spectrum repo. Update when upstream changes.
 
-### Purpose
+## Reference Updater Script
 
-This script:
-1. Regenerates React Spectrum S2 component documentation
-2. Organizes the output into a skill-ready folder structure
-3. Creates a professional SKILL.md navigation file
-4. Handles folder management with user prompts
+The `generate-s2-skill.mjs` script syncs the `references/` folder with the latest React Spectrum S2 documentation. It does **not** modify SKILL.md.
 
 ### Usage
 
-#### Default Behavior
 ```bash
-node generate-s2-skill.mjs
-```
-Generates `./s2-skill/` folder in the current directory.
+# Update references from local react-spectrum clone
+node generate-s2-skill.mjs ~/repos/react-spectrum
 
-#### Custom Paths
-```bash
-node generate-s2-skill.mjs /path/to/react-spectrum /output/path
+# Update to a different output location
+node generate-s2-skill.mjs ~/repos/react-spectrum /path/to/skill
 ```
-- First argument: Path to React Spectrum repository
-- Second argument: Output path for s2-skill folder
 
 ### Requirements
 
@@ -76,105 +82,43 @@ node generate-s2-skill.mjs /path/to/react-spectrum /output/path
 ### How It Works
 
 1. **Validates** React Spectrum repo path
-2. **Runs** `generateMarkdownDocs.mjs` from upstream
-3. **Parses** skill index to identify relevant documentation files
+2. **Runs** Adobe's `yarn workspace @react-spectrum/s2-docs generate:md`
+3. **Parses** llms.txt to identify relevant documentation files
 4. **Filters** out release notes and component-specific testing files
-5. **Copies** only referenced `.md` files to `s2-skill/references/`
-6. **Generates** token-optimized `SKILL.md` with component and guide listings
-7. **Handles** folder overwrites with user confirmation
+5. **Copies** referenced `.md` files to `references/`
+6. **Preserves** hand-crafted SKILL.md
 
 ### Features
 
-- ✅ No external dependencies (uses Node.js built-ins only)
-- ✅ Cross-platform compatible
-- ✅ Comprehensive error handling
-- ✅ Clear status messages
-- ✅ Production-quality code
-
-### Error Handling
-
-The script handles:
-- Missing repo path
-- Missing upstream script
-- File system errors
-- Invalid user input
-- Subprocess execution failures
-
-All errors include clear messages and exit with code 1.
-
-### Output
-
-Clear console output with:
-- Progress indicators (dots during file copy)
-- Status messages at each step
-- Summary statistics
-- Next steps guidance
+- Only updates `references/` - SKILL.md is preserved
+- Filters out release notes and version history
+- Consolidates component-specific testing into single guide
+- Interactive confirmation before overwriting
 
 ## Documentation Files
 
-All documentation is in `s2-skill/references/`:
-
 **Components (66 files):**
-- Accordion, ActionBar, ActionButton, ActionButtonGroup, ActionMenu
-- Avatar, AvatarGroup, Badge, Breadcrumbs, Button, ButtonGroup
-- Calendar, Card, CardView, Checkbox, CheckboxGroup, ColorArea
-- ColorField, ColorSlider, ColorSwatch, ColorSwatchPicker, ColorWheel
-- ComboBox, ContextualHelp, DateField, DatePicker, DateRangePicker
-- Dialog, Disclosure, Divider, DropZone, Form, IllustratedMessage
-- Image, InlineAlert, Link, LinkButton, Menu, Meter, NumberField
-- Picker, Popover, ProgressBar, ProgressCircle, Provider, RadioGroup
-- RangeCalendar, RangeSlider, SearchField, SegmentedControl, SelectBoxGroup
-- Skeleton, Slider, StatusLight, Switch, TableView, Tabs, TagGroup
-- TextArea, TextField, TimeField, Toast, ToggleButton, ToggleButtonGroup
-- Tooltip, TreeView
+Accordion, ActionBar, ActionButton, ActionButtonGroup, ActionMenu, Avatar, AvatarGroup, Badge, Breadcrumbs, Button, ButtonGroup, Calendar, Card, CardView, Checkbox, CheckboxGroup, ColorArea, ColorField, ColorSlider, ColorSwatch, ColorSwatchPicker, ColorWheel, ComboBox, ContextualHelp, DateField, DatePicker, DateRangePicker, Dialog, Disclosure, Divider, DropZone, Form, IllustratedMessage, Image, InlineAlert, Link, LinkButton, Menu, Meter, NumberField, Picker, Popover, ProgressBar, ProgressCircle, Provider, RadioGroup, RangeCalendar, RangeSlider, SearchField, SegmentedControl, SelectBoxGroup, Skeleton, Slider, StatusLight, Switch, TableView, Tabs, TagGroup, TextArea, TextField, TimeField, Toast, ToggleButton, ToggleButtonGroup, Tooltip, TreeView
 
 **Guides (11 files):**
-- collections.md - Collection components
-- forms.md - Form patterns
-- getting-started.md - Getting started guide
-- icons.md - Icons documentation
+- collections.md - Collection components and data loading
+- forms.md - Form patterns and validation
+- getting-started.md - Installation and setup
+- icons.md - Icon usage
 - illustrations.md - Illustrations guide
-- mcp.md - MCP documentation
-- migrating.md - Migration guide
+- mcp.md - MCP server documentation
+- migrating.md - v3 to S2 migration
 - selection.md - Selection patterns
-- style-macro.md - Style macro documentation
-- styling.md - Styling guide
+- style-macro.md - Style macro reference
+- styling.md - Styling guide and best practices
 - testing.md - Testing guide
-
-## File Structure
-
-```
-s2-skill/
-├── SKILL.md                    # Main navigation index
-└── references/
-    ├── Button.md               # Component documentation
-    ├── ComboBox.md
-    ├── ... (66 components)
-    ├── styling.md              # Guide documentation
-    ├── getting-started.md
-    └── ... (11 guides)
-```
-
-## Integration
-
-The generated `s2-skill/` folder is optimized for LLM consumption with:
-- Token-efficient SKILL.md format (no redundant markdown links)
-- Only relevant documentation files (release notes filtered out)
-- Component-specific testing files consolidated into single testing guide
-- 77 reference files covering 66 components and 11 guides
 
 ## License
 
 MIT License - See LICENSE file
 
-## Support
-
-- For questions about components, refer to the specific component documentation
-- For styling questions, see `s2-skill/references/styling.md`
-- For testing, see `s2-skill/references/testing.md`
-- For React Spectrum official documentation, visit https://react-spectrum.adobe.com
-
 ## About React Spectrum
 
-React Spectrum is Adobe's design system and component library. This skill provides S2 (Spectrum 2) component documentation optimized for AI agents.
+React Spectrum is Adobe's design system and component library. This skill provides Spectrum 2 component documentation optimized for AI agents.
 
+For official documentation, visit https://react-spectrum.adobe.com
