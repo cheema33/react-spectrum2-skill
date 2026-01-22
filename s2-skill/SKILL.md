@@ -67,13 +67,13 @@ const inactiveStyle = style({ color: 'gray-600' });
 
 66 components available. Read `references/<Name>.md` for props and examples:
 
-**Layout:** Provider, Divider, Form
-**Buttons:** Button, ActionButton, ToggleButton, LinkButton, ButtonGroup, ActionButtonGroup, ToggleButtonGroup
-**Inputs:** TextField, TextArea, NumberField, SearchField, Checkbox, CheckboxGroup, RadioGroup, Switch, Picker, ComboBox, DateField, DatePicker, TimeField, DateRangePicker
-**Collections:** Menu, ActionMenu, TableView, CardView, TreeView, Tabs, Accordion, TagGroup
-**Overlays:** Dialog, Popover, Tooltip, Toast
-**Feedback:** ProgressBar, ProgressCircle, Meter, StatusLight, Badge, InlineAlert
-**Navigation:** Breadcrumbs, Link, SegmentedControl
-**Media:** Image, Avatar, AvatarGroup, Card
-**Color:** ColorField, ColorSlider, ColorArea, ColorWheel, ColorSwatch, ColorSwatchPicker
-**Other:** Calendar, RangeCalendar, Disclosure, DropZone, IllustratedMessage, Skeleton, ContextualHelp
+- **Layout:** Provider, Divider, Form
+- **Buttons:** Button, ActionButton, ToggleButton, LinkButton, ButtonGroup, ActionButtonGroup, ToggleButtonGroup
+- **Inputs:** TextField, TextArea, NumberField, SearchField, Checkbox, CheckboxGroup, RadioGroup, Switch, Picker, ComboBox, DateField, DatePicker, TimeField, DateRangePicker
+- **Collections:** Menu, ActionMenu, TableView, CardView, TreeView, Tabs, Accordion, TagGroup
+- **Overlays:** Dialog, Popover, Tooltip, Toast
+- **Feedback:** ProgressBar, ProgressCircle, Meter, StatusLight, Badge, InlineAlert
+- **Navigation:** Breadcrumbs, Link, SegmentedControl
+- **Media:** Image, Avatar, AvatarGroup, Card
+- **Color:** ColorField, ColorSlider, ColorArea, ColorWheel, ColorSwatch, ColorSwatchPicker
+- **Other:** Calendar, RangeCalendar, Disclosure, DropZone, IllustratedMessage, Skeleton, ContextualHelp
